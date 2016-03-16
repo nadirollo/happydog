@@ -1,0 +1,100 @@
+{% load staticfiles %}
+<div id="customer">
+    <ul class="nav nav-tabs">
+      {% for o in owners %}
+      <li {% if forloop.first %}class="active" {% endif %}><a data-toggle="tab" href="#owner_{{ o.pk }}">{{ o.first_name }}</a></li>
+      {% endfor %}
+    </ul>
+    <div class="tab-content border">
+    {% for o in owners %}
+      <div id="owner_{{ o.pk }}" class="tab-pane fade {% if forloop.first %}in active{% endif %}">
+        <form class="form-horizontal">
+          <div class="form-group">
+            <label class="col-sm-2 control-label"><span class="glyphicon glyphicon-user"></span></label>
+            <div class="col-sm-10">
+              <p class="form-control-static">{{ o.first_name }} {{ o.last_name }}</p class="form-control-static">
+            </div>
+            <label class="col-sm-2 control-label"><span class="glyphicon glyphicon-envelope"></span></label>
+            <div class="col-sm-10">
+              <p class="form-control-static">{{ o.email }}</p>
+            </div>
+            <label class="col-sm-2 control-label"><span class="glyphicon glyphicon-phone"></span></label>
+            <div class="col-sm-10">
+              <p class="form-control-static">{{ o.cellphone }}</p>
+            </div>
+          </div>
+        </form>
+      </div>
+    {% endfor %}
+    </div>
+</div>
+<div id="pets">
+  <ul id="pets_tabs" class="nav nav-tabs">
+    {% for pet in pets %}
+    <li {% if pet.pk == selected_pet_pk %}class="active" {% endif %}><a id='pet${{ pet.name }}${{ pet.long_name }}${{ pet.pk }}' data-toggle="tab" href="#pet_{{ pet.pk }}">{{ pet.name }}</a></li>
+    {% endfor %}
+  </ul>
+  <div class="tab-content border">
+  {% for pet in pets %}
+    <div id="pet_{{ pet.pk }}" class="top-buffer tab-pane fade {% if pet.pk == selected_pet_pk %}in active{% endif %}">
+      <div class="media">
+        <div class="media-left">
+          <img class="img-rounded" src="{% static 'happy/img/tux.jpg' %}" alt="{{ selected_pet.name }}">
+          {% if pet.birthday or pet.weight or pet.hair_type %}
+            <h6>
+              {% if pet.birthday %}
+                <span class="glyphicon icon-birthday"></span> {{ pet.birthday | date:"d F"}} <br>
+              {% endif %}
+              {% if pet.weight %}
+                <span class="glyphicon icon-gauge"></span> {{ pet.weight }} Kg <br>
+              {% endif %}
+              {% if pet.hair_type %}
+                <span class="glyphicon icon-scissors"></span> {{ pet.hair_type}} <br>
+              {% endif %}
+            </h6>
+          {% endif %}
+        </div>
+        <div class="media-body">
+          <h4 class="media-heading">{{ pet.name }} <small> {{ pet.breed }}</small></h4>
+          <p>{{ pet.annotations }}</p>
+        </div>
+        {% if last_appointments %}
+        <div class="panel-group top-buffer" id="accordion" role="tablist" aria-multiselectable="true">
+        <h5>Citas</h5>
+        <!-- TOOD: Make app.pk to reference the appointment in the calendar.
+        Add an icon for it
+        Click on the icon will put the calendar on the corresponding week with the appointment highlighted -->
+        {% for a in last_appointments %}
+          {% if a.pet.pk == pet.pk %}
+          <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="happ_{{ a.pk }}">
+              <h4 class="panel-title">
+                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#app_{{ a.pk }}" aria-expanded="false" aria-controls="app_{{ a.pk }}">
+                  {{ a.start }}
+                </a>
+              </h4>
+            </div>
+            <div id="app_{{ a.pk }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="happ_{{ a.pk }}">
+              <div class="panel-body">
+                {% for s in a.services.all %}
+                  <div class="row">
+                    {{ s.name }}
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        {% endfor %}
+        </div>
+      {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+  </div>
+</div>
+
+
+
+
+</div>

@@ -1,0 +1,46 @@
+<script>
+  var delay = (function(){
+  var timer = 0;
+  return function(callback, ms){
+    clearTimeout (timer);
+    timer = setTimeout(callback, ms);
+  };
+})();
+$(document).ready(function() {
+  $('#search_pet_box').keyup(function () {
+    delay(function () {
+      q = $('#search_pet_box').val();
+      if (q == '') {
+        //TODO: Hide results
+        $('#search_results').html('');
+      } else {
+        $.ajax({
+            url: location.protocol + "//" + location.host + "/get_pets?q=" + q,
+            type: "GET",
+            success: function(data) {
+                $('#search_results').html(data);
+                return true;
+            },
+            error: function(xhr, errmsg, err) {
+                console.log(xhr.status + ": " + xhr.responseText);
+                return false;
+            }
+        });
+      }
+    }, 200);
+  });
+});
+</script>
+<div class="row">
+  <div class="input-group">
+    <input id='search_pet_box' type="text" class="form-control" placeholder="Buscar cliente o peludete...">
+    <span class="input-group-btn">
+      <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+    </span>
+  </div>
+  <div id="search_results" class="list-group pet_search_results box-shadow--6dp">
+  </div>
+</div>
+<div id="pet_info" class="row top-buffer">
+  
+</div>

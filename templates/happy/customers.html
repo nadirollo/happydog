@@ -1,0 +1,14 @@
+{% extends 'happy/base.html' %}
+
+{% block content %}
+<script>
+    $( "#nav_customers").addClass('active');
+</script>
+<h1>Customers</h1>
+<ul>
+{% for customer in customers %}
+    <li>{{ customer.first_name }}</li>
+    <li>{{ customer.email }}</li>
+{% endfor %}
+</ul>
+{% endblock %}

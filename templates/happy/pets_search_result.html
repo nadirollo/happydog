@@ -1,0 +1,6 @@
+{% load staticfiles %}
+{% for pet in pets %}
+  <a href="javascript:loadPetData({{ pet.pk }});" class="list-group-item">
+    {{ pet.long_name }}
+  </a>
+{% endfor %}

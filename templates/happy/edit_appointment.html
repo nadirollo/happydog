@@ -1,0 +1,45 @@
+<!-- Modal -->
+<div class="modal fade" id="edit_appointment" tabindex="-1" role="dialog" aria-labelledby="edit_appointment" data-backdrop="static" data-keyboard="false" >
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 id="appointment_title" class="modal-title">Titulo</h4>
+        <h5 id="appointment_time" class="modal-title">Desde hasta</h5>
+      </div>
+      <div class="modal-body">
+        <div class="dropdown col-md-3">
+          <button class="btn btn-default dropdown-toggle" type="button" id="services_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            <span class="glyphicon glyphicon-scissors"></span>
+            Servicios
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+            {% for s in services %}
+            <li><a href="#">{{ s.name }}</a></li>
+
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="col-md-3">
+          <button class="btn btn-default dropdown-toggle" type="button" id="products_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            <span class="glyphicon glyphicon-shopping-cart"></span>
+            Productos
+            <span class="caret"></span>
+          </button>
+        </div>
+        <div class="row top-buffer">
+          <table id="services_table" class="table table-stripped">
+            <th>Servicio</th>
+            <th>Precio</th>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar</button>
+        <button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-euro" aria-hidden="true"></span> Cobrar</button>
+        <button type="button" class="btn btn-danger"><span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span> Cancelar Cita</button>
+      </div>
+    </div>
+  </div>
+</div>

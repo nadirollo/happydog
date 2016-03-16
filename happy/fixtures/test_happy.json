@@ -1,0 +1,35 @@
+[
+  {
+    "model": "happy.customer",
+    "pk": 1,
+    "fields": {
+      "first_name": "Anna Karina",
+      "last_name": "Nava Soriano",
+      "email": "aknsoriano@gmail.com",
+      "cellphone": "00447746271648",
+      "landphone": "00447746271648"
+    }
+  },
+  {
+    "model": "happy.customer",
+    "pk": 2,
+    "fields": {
+      "first_name": "Nadir",
+      "last_name": "Lloret Bouman",
+      "email": "nadir.lloret@gmail.com",
+      "cellphone": "00447873996718",
+      "landphone": ""
+    }
+  },
+  {
+    "model": "happy.customer",
+    "pk": 3,
+    "fields": {
+      "first_name": "Zaira",
+      "last_name": "Lloret Bouman",
+      "email": "happydogzaira@gmail.com",
+      "cellphone": "688921775",
+      "landphone": "966859275"
+    }
+  }
+]
