@@ -77,8 +77,8 @@ $(document).ready(function() {
                 pet_name = pet_info[1];
                 pet_longname = pet_info[2];
                 confirm_pet_appointment_btn.html('<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> ' + pet_name);
-                $('#confirm_pet_appointment_title').html("Cita el " + start.format('dddd, D MMMM') + " con ...");
-                calendar.fullCalendar('renderEvent', eventData, true); // stick? = true
+                $('#confirm_pet_appointment_title').html("Cita el " + start.format('dddd, D MMMM HH:mm') + " con ...");
+                //calendar.fullCalendar('renderEvent', eventData, true); // stick? = true
                 addHidden($('#new_appointment_body_div'));
                 confirm_pet_appointment_btn.removeClass('hidden');
                 confirm_new_pet_appointment_btn.removeClass('hidden');
@@ -125,4 +125,24 @@ function clear_pet_pk(){
 
 function clear_owner_pk(){
     //alert('clearing owner pk');
+}
+
+function confirm_selected_pet_appointment(){
+    var active_pet = petsTab.children('.active').children('a');
+    var pet_info;
+    var pet_id;
+    pet_info = active_pet.prop('id');
+    pet_info = pet_info.split('$');
+    pet_id = pet_info[3];
+    var eventData = {
+        "pet_id": 1,
+        "description": "Molo mogollon",
+        "end": "2016-03-08T19:30:00Z",
+        "pet_long_name": "Tux - (Nadir Lloret Bouman) - (Anna Karina Nava Soriano)",
+        "services": {
+            "price": 10, "name": "Corte maquina - Corto - Peque\u00f1o"
+        }, "start": "2016-03-08T18:00:00Z",
+        "title": "Tux"
+    }
+    calendar.fullCalendar('renderEvent', eventData, true); // stick? = true
 }

@@ -3,21 +3,21 @@
     "model": "happy.customer",
     "pk": 1,
     "fields": {
-      "first_name": "Anna Karina",
-      "last_name": "Nava Soriano",
-      "email": "aknsoriano@gmail.com",
-      "cellphone": "00447746271648",
-      "landphone": "00447746271648"
+      "first_name": "Mr Dopufo",
+      "last_name": "Vargas",
+      "email": "dopufo@gmail.com",
+      "cellphone": "0011223344",
+      "landphone": "012345123"
     }
   },
   {
     "model": "happy.customer",
     "pk": 2,
     "fields": {
-      "first_name": "Nadir",
-      "last_name": "Lloret Bouman",
-      "email": "nadir.lloret@gmail.com",
-      "cellphone": "00447873996718",
+      "first_name": "Aiden",
+      "last_name": "The Wolf",
+      "email": "aiden@gmail.com",
+      "cellphone": "123141243123",
       "landphone": ""
     }
   },
@@ -25,11 +25,11 @@
     "model": "happy.customer",
     "pk": 3,
     "fields": {
-      "first_name": "Zaira",
-      "last_name": "Lloret Bouman",
-      "email": "happydogzaira@gmail.com",
-      "cellphone": "688921775",
-      "landphone": "966859275"
+      "first_name": "Laika",
+      "last_name": "Loren Ipsum",
+      "email": "ipsum@gmail.com",
+      "cellphone": "123123123",
+      "landphone": "9612351232"
     }
   }
 ]
