@@ -7,11 +7,9 @@ class Customer(models.Model):
     email = models.CharField(max_length=256)
     cellphone = models.IntegerField()
     landphone = models.IntegerField(null=True, blank=True)
-    # Add club happy dog field:
+    club_happy = models.BooleanField(default=False)
     # Add function to get next free appointment
     # This should be checked when giving the appointment?
-
-    # Facebook profile?
 
     def __unicode__(self):
         return self.first_name
@@ -30,18 +28,24 @@ class Pet(models.Model):
     weight = models.IntegerField(null=True, blank=True)
     annotations = models.CharField(max_length=2048, null=True, blank=True)
     birthday = models.DateField(null=True, blank=True)
+    birthday_week = models.IntegerField(null=True, blank=True)
 
     def long_name(self):
-      str = self.name
-      for o in self.owners.all():
-          str += " - ({} {})".format(o.first_name, o.last_name)
-      return str
+        str = self.name
+        for o in self.owners.all():
+            str += " - ({} {})".format(o.first_name, o.last_name)
+        return str
 
     def __unicode__(self):
         str = self.name
         for o in self.owners.all():
             str += " - ({} {})".format(o.first_name, o.last_name)
         return str
+
+    def save(self):
+        if self.birthday is not None and self.birthday != '':
+            self.birthday_week = self.birthday.isocalendar()[1]
+            super(Pet, self).save()
 
 
 class PetPictures(models.Model):
@@ -77,8 +81,9 @@ class Appointment(models.Model):
     start = models.DateTimeField()
     end = models.DateTimeField()
     notes = models.CharField(max_length=2048)
+    paid = models.BooleanField(default=False)
+    amount_paid = models.FloatField(default=0)
+
 
     def __unicode__(self):
         return "{} ({} - {})".format(self.pet, self.start, self.end)
-
-
