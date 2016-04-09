@@ -1,0 +1,157 @@
+{% load staticfiles %}
+<!-- Modal -->
+<div class="modal fade" id="pet_appointment_modal" tabindex="-1" role="dialog" aria-labelledby="pet_appointment_modal" >
+  <div class="modal-dialog" role="document" style="width: 60%">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title"><span class="glyphicon icon-paw"></span><span id="pet_appointment_modal_title" >Nueva cita con ...</span></h3>
+      </div>
+      <div class="modal-body">
+        <div id="new_appointment_div">
+          <form id="new_pet_appointment_form">
+            <div class="row">
+              <!-- Pet info -->
+              <div class="col-md-6">
+                <div class="row">
+                  <div class="col-md-6">
+                    <fieldset class="form-group has-feedback">
+                      <label>Nombre del Peludo</label>
+                      <input id="app_search_pet_box" type="text" class="form-control" name="pet_name" placeholder='Buscar Peludo...' onchange="clearPetPK()" autocomplete="off">
+                      <i class="glyphicon glyphicon-search form-control-feedback"></i>
+                    </fieldset>
+                  </div>
+                  <div class="col-md-6">
+                    <fieldset class="form-group">
+                      <label>Raza</label>
+                      <input type="text" class="form-control" id="pet_breed" placeholder="Raza">
+                    </fieldset>
+                  </div>
+                </div>
+                <div class="row">
+                  <div id="app_pet_search_results" class="col-md-12 list-group pet-search-results box-shadow--6dp" style="overflow-y: hidden;">
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-4">
+                    <fieldset class="form-group">
+                      <label>Fecha Nacimiento</label>
+                      <input data-provide="datepicker" data-date-format="mm/dd/yyyy" data-date-autoclose="true" class="form-control" id="pet_birthday" placeholder="dd/mm/aaaa">
+                    </fieldset>
+                  </div>
+                  <div class="col-md-8">
+                    <fieldset class="form-group">
+                      <label for="exampleTextarea">Notas del peludo</label>
+                      <textarea class="form-control" id="exampleTextarea" rows="3"></textarea>
+                    </fieldset>
+                  </div>
+                </div>
+              </div>
+              <!-- Owner info -->
+              <div class="col-md-6" style="padding-right:20px; border-left: 1px solid #ccc;">
+                <div class="row">
+                  <div class="col-md-12">
+                    <fieldset class="form-group has-feedback">
+                      <label>Dueño</label>
+                      <input id="app_search_owner_box" type="text" class="form-control" name="customer_firstname" placeholder="Nombre y Apellidos" onchange="clearOwnerPK()" autocomplete="off">
+                      <i class="glyphicon glyphicon-search form-control-feedback"></i>
+                    </fieldset>
+                  </div>
+                </div>
+                <div class="row">
+                  <div id="app_owner_search_results" class="col-md-12 list-group pet-search-results box-shadow--6dp" style="overflow-y: hidden;">
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-8">
+                    <fieldset class="form-group has-feedback">
+                      <label>Teléfono</label>
+                      <input id="app_search_phone_box" type="text" class="form-control" name="customer_phone" placeholder="Teléfono" autocomplete="off">
+                      <i class="glyphicon glyphicon-search form-control-feedback"></i>
+                    </fieldset>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="checkbox top-buffer-40">
+                      <label>
+                        <input name="is_club_happy" type="checkbox"> Club Happy
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div id="app_phone_search_results" class="col-md-12 list-group pet-search-results box-shadow--6dp" style="overflow-y: hidden;">
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-12">
+                    <fieldset class="form-group has-feedback">
+                      <label>Email</label>
+                      <input type="email" class="form-control" name="customer_email" placeholder="Email" autocomplete="off">
+                      <i class="glyphicon glyphicon-search form-control-feedback"></i>
+                    </fieldset>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr>
+          </form>
+        </div>
+        <!-- Services -->
+        <div class="row">
+          <div class="dropdown col-md-3">
+            <button class="btn btn-default dropdown-toggle" type="button" id="services_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+              <span class="glyphicon glyphicon-scissors"></span>
+              Servicios
+              <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+              {% for s in services %}
+                <li><a data-service-id="{{ s.id }}" data-service-name="{{ s.name }}" data-service-price="{{ s.price }}" href="#" onclick="updateServices(this); return false; ">{{ s.name }}</a></li>
+              {% endfor %}
+            </ul>
+          </div>
+          <div class="col-md-3">
+            <button class="btn btn-default dropdown-toggle" type="button" id="products_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+              <span class="glyphicon glyphicon-shopping-cart"></span>
+              Productos
+              <span class="caret"></span>
+            </button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-8">
+            <table id="services_table" class="table table-stripped" style="font-size: 14px">
+              <thead>
+              <th>Servicio</th>
+              <th>Precio</th>
+              <th></th>
+              </thead>
+              <tbody>
+
+              </tbody>
+            </table>
+          </div>
+          <!-- TODO: S3 image url -->
+          <div class="col-md-4">
+            <img id="app_img" class="img-rounded img-appointment" src="{% static 'happy/img/tux.jpg' %}"">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="row">
+          <div class="col-md-4">
+            <h4 class="text-left">Total: <span id="total_price">100 </span> €<span id="total_paid"></span></h4>
+          </div>
+          <div class="col-md-8">
+            <button id="confirm_new_pet_appointment_btn" type="button" class="btn btn-primary"  onclick="showNewAppointment();"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Nueva Cita</button>
+            <button id="confirm_pet_appointment_btn" type="button" class="btn btn-success" onclick="confirmSelectedPetAppointment();"></button>
+            <button id="save_appointment_btn" type="button" class="btn btn-success" onclick="updateAppointment();"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar</button>
+            <button id="pay_btn" type="button" class="btn btn-primary" onclick="showPayment()"><span class="glyphicon glyphicon-euro" aria-hidden="true"></span> Cobrar</button>
+            <button id="remove_app_btn" type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirm_delete_appointment_modal"><span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span> Cancelar Cita</button>
+            <button id="close_appointment_modal" type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,32 @@
+<!-- Modal -->
+<div class="modal fade" id="confirm_payment_modal" tabindex="-1" role="dialog" aria-labelledby="confirm_payment_modal" >
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">
+          <span aria-hidden="true">&times;</span>
+          <span class="sr-only">Close</span>
+        </button>
+        <h4 class="modal-title" id="myModalLabel">
+          Cobrar
+        </h4>
+      </div>
+      <div class="modal-body">
+        <div id="modal_content_div">
+          <div class="input-group col-xs-4">
+            <span class="input-group-addon">€</span>
+            <input id='payment_input' type="text" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" class="form-control">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">
+          Cerrar
+        </button>
+        <button type="button" class="btn btn-primary" onclick="payAppointment()">
+          Cobrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

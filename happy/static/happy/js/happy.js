@@ -1,23 +1,174 @@
-function loadPetData(pet_id){
-    $('#search_results').html('');
-    $.ajax({
-        url: location.protocol + "//" + location.host + "/get_pet",
-        type: "GET",
-        data: { pet_pk: pet_id },
-        success: function(data) {
-            $('#search_results').html('');
-            $('#pet_info').html(data);
-            return true;
+var delay = (function(){
+    var timer = 0;
+    return function(callback, ms){
+        clearTimeout (timer);
+        timer = setTimeout(callback, ms);
+    };
+})();
+
+
+// Dynamic search box for main page
+$(document).ready(function() {
+    $('#search_pet_box').keyup(function () {
+        delay(function () {
+            q = $('#search_pet_box').val();
+            if (q == '') {
+                $('#search_results').html('');
+            } else {
+                $.ajax({
+                    url: location.protocol + "//" + location.host + "/get_pets?query=" + q,
+                    type: "GET",
+                    success: function(data) {
+                        $('#search_results').html(data);
+                        return true;
+                    },
+                    error: function(xhr, errmsg, err) {
+                        console.log(xhr.status + ": " + xhr.responseText);
+                        return false;
+                    }
+                });
+            }
+        }, 200);
+    });
+
+});
+
+
+$(document).ready(function(){
+    $('#app_search_pet_box').typeahead({
+        onSelect: function(item) {
+            console.log('aqui1');
+            console.log(item);
         },
-        error: function(xhr, errmsg, err) {
-            console.log(xhr.status + ": " + xhr.responseText);
-            return false;
+        ajax: {
+            url: location.protocol + "//" + location.host + "/get_pets?type=appointment&limit5",
+            timeout: 200,
+            triggerLength: 1,
+            displayField: 'model',
+            method: 'get',
+            preProcess: function (data) {
+                if (data.success === false) {
+                    // Hide the list, there was some error
+                    return false;
+                }
+                // We good!
+                return JSON.parse( data );
+            }
         }
     });
-}
+});
+
+//// Dynamic search box for pet appointment
+//$(document).ready(function() {
+//    var app_search_results = $('#app_pet_search_results');
+//    var app_search_box = $('#app_search_pet_box');
+//
+//    app_search_box.keyup(function () {
+//        delay(function () {
+//            q = app_search_box.val();
+//            if (q == '') {
+//                app_search_results.html('');
+//            } else {
+//                $.ajax({
+//                    url: location.protocol + "//" + location.host + "/get_pets?limit=5&type=appointment&q=" + q,
+//                    type: "GET",
+//                    success: function(data) {
+//                        app_search_results.removeClass('hidden');
+//                        app_search_results.html(data);
+//                        return true;
+//                    },
+//                    error: function(xhr, errmsg, err) {
+//                        console.log(xhr.status + ": " + xhr.responseText);
+//                        return false;
+//                    }
+//                });
+//            }
+//        }, 200);
+//    });
+//
+//});
+
+//$(document).ready(function(){
+//    $('#app_search_pet_box').blur(
+//        function() {
+//            addHidden($('#app_pet_search_results'));
+//        }
+//    );
+//});
+
+
+// Dynamic search box for owner appointment
+$(document).ready(function() {
+    $('#app_search_owner_box').keyup(function () {
+        delay(function () {
+            q = $('#app_search_owner_box').val();
+            if (q == '') {
+                $('#app_owner_search_results').html('');
+            } else {
+                $.ajax({
+                    url: location.protocol + "//" + location.host + "/get_pets?limit=5&q=" + q,
+                    type: "GET",
+                    success: function(data) {
+                        $('#app_owner_search_results').html(data);
+                        return true;
+                    },
+                    error: function(xhr, errmsg, err) {
+                        console.log(xhr.status + ": " + xhr.responseText);
+                        return false;
+                    }
+                });
+            }
+        }, 200);
+    });
+
+});
+
+$(document).ready(function(){
+    $('#app_search_owner_box').blur(
+        function() {
+            addHidden($('#app_owner_search_results'));
+        }
+    );
+});
+
+// Dynamic search box for cellphone
+$(document).ready(function() {
+    $('#app_search_phone_box').keyup(function () {
+        delay(function () {
+            q = $('#app_search_phone_box').val();
+            if (q == '') {
+                $('#app_phone_search_results').html('');
+            } else {
+                $.ajax({
+                    url: location.protocol + "//" + location.host + "/get_phones?limit=5&q=" + q,
+                    type: "GET",
+                    success: function(data) {
+                        $('#app_phone_search_results').html(data);
+                        return true;
+                    },
+                    error: function(xhr, errmsg, err) {
+                        console.log(xhr.status + ": " + xhr.responseText);
+                        return false;
+                    }
+                });
+            }
+        }, 200);
+    });
+
+});
+
+$(document).ready(function(){
+    $('#app_search_phone_box').blur(
+        function() {
+            $('#app_phone_search_results').html('');
+        }
+    );
+});
+
+
+
 
 $(document).ready(function() {
-    // page is now ready, initialize the calendar...
     $('#calendar').fullCalendar({
         defaultView: 'agendaWeek',
         editable: true,
@@ -55,9 +206,10 @@ $(document).ready(function() {
                 // TODO: Change url for s3 image
                 // TODO: Add link to pet details
                 calEvent.pets.forEach(function(entry){
+                    //TODO: Replace S3 image
                     html_content = "<div class='col-sm-2 col-md-2'> \
                                         <div class='thumbnail'> \
-                                          <img class='img-rounded' src='/static/happy/img/tux.jpg'/> \
+                                          <img onclick='loadPetData(" + entry.id + ")' style='cursor: pointer;' class='img-rounded' src='/static/happy/img/tux.jpg'/> \
                                           <div class='caption text-center'> \
                                             <h3>" + entry.name + "</h3> \
                                             <p>" + entry.years + " años</p> \
@@ -75,14 +227,12 @@ $(document).ready(function() {
                 $('#appointment_title').html(calEvent.pet_long_name);
                 $('#appointment_time').html(moment(calEvent.start).format('HH:mm') + ' - ' + moment(calEvent.end).format('HH:mm'));
                 $.each(calEvent.services, function(i, service) {
-                    services_table_body.append('<tr><td class="service-id" data-service-id="' + service.id + '">' + service.name + '</td><td class="service-price">' + service.price + '</td></tr>');
+                    services_table_body.append('<tr id="srv_' + service.id + '"><td class="service-id" data-service-id="' + service.id + '">' + service.name + '</td><td class="service-price">' + service.price + '</td><td><a class="alert-danger" onclick="deleteService(' + service.id + ')"><span class="glyphicon glyphicon-minus-sign" style="cursor: pointer;"></span></a></td></tr>');
                 });
-                // Add appointment id to the div
                 new_appointment_div.data('app_id', calEvent.id);
                 calculateTotal();
                 if(calEvent.paid){
                     hideAllAppointmentButtons();
-                    // TODO: show total amount paid if different
                     if($('#total_price').text() != calEvent.amount_paid){
                         $('#total_paid').append("<br>Total Cobrado: " + calEvent.amount_paid + "€")
                     }
@@ -94,47 +244,85 @@ $(document).ready(function() {
             }
         },
         select: function(start, end) {
-            var petsTab = $('#pets_tabs');
-            resetServices();
-            resetForm($('#new_pet_appointment_form'));
-            $('#pet_appointment_modal_title').html("Cita el " + start.format('dddd, D MMMM HH:mm') + " con ...");
-            if( petsTab.length){
-                var pet_id;
-                var pet_name;
-                var pet_longname;
-                var pet_info;
-                var confirm_pet_appointment_btn = $('#confirm_pet_appointment_btn');
-                var confirm_new_pet_appointment_btn = $('#confirm_new_pet_appointment_btn');
-                var calendar = $('calendar');
+            // Only allow creation of events in the hourly cal
+            if(start.hasTime()){
+                var petsTab = $('#pets_tabs');
+                resetServices();
+                resetForm($('#new_pet_appointment_form'));
+                $('#pet_appointment_modal_title').html("Cita el " + start.format('dddd, D MMMM HH:mm') + " con ...");
+                if( petsTab.length){
+                    var pet_id;
+                    var pet_name;
+                    var pet_longname;
+                    var pet_info;
+                    var confirm_pet_appointment_btn = $('#confirm_pet_appointment_btn');
+                    var confirm_new_pet_appointment_btn = $('#confirm_new_pet_appointment_btn');
+                    var calendar = $('calendar');
 
-                pet_info = getSelectedPetInfo();
+                    pet_info = getSelectedPetInfo();
 
-                pet_id = pet_info[3];
-                pet_name = pet_info[1];
-                pet_longname = pet_info[2];
-                confirm_pet_appointment_btn.html('<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> ' + pet_name);
-                confirm_pet_appointment_btn.data('pet_id', pet_id);
-                confirm_pet_appointment_btn.data('pet_name', pet_name);
-                confirm_pet_appointment_btn.data('pet_longname', pet_longname);
-                confirm_pet_appointment_btn.data('start_date', start);
-                confirm_pet_appointment_btn.data('end_date', end);
+                    pet_id = pet_info[3];
+                    pet_name = pet_info[1];
+                    pet_longname = pet_info[2];
+                    confirm_pet_appointment_btn.html('<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> ' + pet_name);
+                    confirm_pet_appointment_btn.data('pet_id', pet_id);
+                    confirm_pet_appointment_btn.data('pet_name', pet_name);
+                    confirm_pet_appointment_btn.data('pet_longname', pet_longname);
+                    confirm_pet_appointment_btn.data('start_date', start);
+                    confirm_pet_appointment_btn.data('end_date', end);
 
-                showNewAppointmentButtons();
-                addHidden($('#new_appointment_div'));
-                $('#pet_appointment_modal').modal('show');
-                $('#pet_selected').html(pet_id);
-                calendar.fullCalendar('unselect');
-            }else{
-                showNewAppointmentButtons();
-                addHidden($('#confirm_pet_appointment_btn'));
-                $('#pet_appointment_modal').modal('show');
+                    showNewAppointmentButtons();
+                    addHidden($('#new_appointment_div'));
+                    $('#pet_appointment_modal').modal('show');
+                    $('#pet_selected').html(pet_id);
+                    calendar.fullCalendar('unselect');
+                }else{
+                    showNewAppointment();
+                    $('#pet_appointment_modal').modal('show');
+                }
+
             }
-
-        },
+        }
     })
-
 });
 
+
+function loadPetData(pet_id){
+    $('#pets_birthday_modal').modal('hide');
+    $('#search_results').html('');
+    $.ajax({
+        url: location.protocol + "//" + location.host + "/get_pet",
+        type: "GET",
+        data: { pet_pk: pet_id },
+        success: function(data) {
+            $('#search_results').html('');
+            $('#pet_info').html(data);
+            return true;
+        },
+        error: function(xhr, errmsg, err) {
+            console.log(xhr.status + ": " + xhr.responseText);
+            return false;
+        }
+    });
+}
+
+function loadAppPetData(pet_id){
+    console.log(pet_id);
+    $('#app_pet_search_results').html('');
+    $.ajax({
+        url: location.protocol + "//" + location.host + "/get_pet",
+        type: "GET",
+        data: { pet_pk: pet_id },
+        success: function(data) {
+            console.log('TODO!');
+            return true;
+        },
+        error: function(xhr, errmsg, err) {
+            console.log(xhr.status + ": " + xhr.responseText);
+            return false;
+        }
+    });
+}
 
 function getSelectedPetInfo(){
     var petsTab = $('#pets_tabs');
@@ -159,7 +347,7 @@ function resetForm($form) {
 
 function resetServices() {
     $('#services_table tbody').empty();
-    $('#total_price').html('0 <span class="glyphicon glyphicon-euro"/>');
+    $('#total_price').html('0');
 }
 
 function showNewAppointmentButtons() {
@@ -201,9 +389,14 @@ function hideAllAppointmentButtons() {
 
 }
 
-function newAppointment(){
-    // Reset the form fields
+function showNewAppointment(){
+    showNewAppointmentButtons();
+    addHidden($('#confirm_pet_appointment_btn'));
     resetForm($('#new_pet_appointment_form'));
+    $('#app_pet_search_results').html('');
+    $('#app_owner_search_results').html('');
+    $('#app_img').attr('src', '');
+    //TODO: clear attributes with pet/owner info
     $('#new_appointment_div').removeClass('hidden');
 }
 
@@ -239,7 +432,6 @@ function confirmSelectedPetAppointment(){
             return false;
         }
     });
-    // Get services info from the modal
     $('#pet_appointment_modal').modal('toggle');
 }
 
@@ -286,23 +478,24 @@ function removeAppointment(){
 }
 
 function updateServices(obj){
-    $('#services_table tbody').append('<tr><td class="service-id" data-service-id="' + obj.dataset.serviceId  + '">' + obj.dataset.serviceName + '</td><td class="service-price">' + obj.dataset.servicePrice + '</td></tr>');
+    $('#services_table tbody').append('<tr id="srv_' + obj.dataset.serviceId + '"><td class="service-id" data-service-id="' + obj.dataset.serviceId  + '">' + obj.dataset.serviceName + '</td><td class="service-price">' + obj.dataset.servicePrice + '</td><td><a class="alert-danger" onclick="deleteService(' + obj.dataset.serviceId + ')" style="cursor: pointer;"><span class="glyphicon glyphicon-minus-sign"></span></a></td></tr>');
     $('#save_appointment_btn').prop('disabled', false);
     $('#pay_btn').prop('disabled', true);
     calculateTotal();
 }
 
-function deleteService(obj){
-    $('#services_table tbody').append('<tr><td>' + obj.dataset.serviceName + '</td><td>' + obj.dataset.servicePrice + '</td></tr>');
+function deleteService(srv_id){
+    $('#srv_'+srv_id).remove();
+    $('#save_appointment_btn').prop('disabled', false);
+    $('#pay_btn').prop('disabled', true);
+    calculateTotal();
 }
 
 function calculateTotal(){
     var sum = 0;
-    // iterate through each td based on class and add the values
     $('.service-price').each(function() {
 
         var value = $(this).text();
-        // add only if the value is number
         if(!isNaN(value) && value.length != 0) {
             sum += parseFloat(value);
         }
