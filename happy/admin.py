@@ -5,7 +5,7 @@ from .models import *
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
   list_display = ('__unicode__', )
-  search_fields = ['first_name', 'last_name']
+  search_fields = ['name']
 
 @admin.register(Pet)
 class PetAdmin(admin.ModelAdmin):

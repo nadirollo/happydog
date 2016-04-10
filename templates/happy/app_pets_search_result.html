@@ -1,6 +1,0 @@
-{% load staticfiles %}
-{% for pet in pets %}
-  <a onclick="javascript:loadAppPetData({{ pet.pk }});" href="#" class="list-group-item">
-    {{ pet.long_name }}
-  </a>
-{% endfor %}

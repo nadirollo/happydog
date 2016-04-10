@@ -17,14 +17,14 @@
                   <div class="col-md-6">
                     <fieldset class="form-group has-feedback">
                       <label>Nombre del Peludo</label>
-                      <input id="app_search_pet_box" type="text" class="form-control" name="pet_name" placeholder='Buscar Peludo...' onchange="clearPetPK()" autocomplete="off">
+                      <input id="app_pet_search_input" type="text" class="form-control" name="pet_name" placeholder='Buscar Peludo...' onchange="clearPetPK()" autocomplete="off">
                       <i class="glyphicon glyphicon-search form-control-feedback"></i>
                     </fieldset>
                   </div>
                   <div class="col-md-6">
                     <fieldset class="form-group">
                       <label>Raza</label>
-                      <input type="text" class="form-control" id="pet_breed" placeholder="Raza">
+                      <input type="text" class="form-control" id="pet_breed_input" placeholder="Raza">
                     </fieldset>
                   </div>
                 </div>
@@ -36,13 +36,13 @@
                   <div class="col-md-4">
                     <fieldset class="form-group">
                       <label>Fecha Nacimiento</label>
-                      <input data-provide="datepicker" data-date-format="mm/dd/yyyy" data-date-autoclose="true" class="form-control" id="pet_birthday" placeholder="dd/mm/aaaa">
+                      <input data-provide="datepicker" data-date-format="dd/mm/yyyy" data-date-autoclose="true" class="form-control" id="pet_birthday_input" placeholder="dd/mm/aaaa">
                     </fieldset>
                   </div>
                   <div class="col-md-8">
                     <fieldset class="form-group">
                       <label for="exampleTextarea">Notas del peludo</label>
-                      <textarea class="form-control" id="exampleTextarea" rows="3"></textarea>
+                      <textarea class="form-control" id="pet_description_input" rows="3"></textarea>
                     </fieldset>
                   </div>
                 </div>
@@ -53,7 +53,7 @@
                   <div class="col-md-12">
                     <fieldset class="form-group has-feedback">
                       <label>Dueño</label>
-                      <input id="app_search_owner_box" type="text" class="form-control" name="customer_firstname" placeholder="Nombre y Apellidos" onchange="clearOwnerPK()" autocomplete="off">
+                      <input id="app_search_owner_input" type="text" class="form-control" name="customer_name" placeholder="Nombre y Apellidos" onchange="clearOwnerPK()" autocomplete="off">
                       <i class="glyphicon glyphicon-search form-control-feedback"></i>
                     </fieldset>
                   </div>
@@ -66,27 +66,23 @@
                   <div class="col-md-8">
                     <fieldset class="form-group has-feedback">
                       <label>Teléfono</label>
-                      <input id="app_search_phone_box" type="text" class="form-control" name="customer_phone" placeholder="Teléfono" autocomplete="off">
+                      <input id="app_search_phone_input" type="text" class="form-control" name="customer_phone" placeholder="Teléfono" autocomplete="off">
                       <i class="glyphicon glyphicon-search form-control-feedback"></i>
                     </fieldset>
                   </div>
                   <div class="col-md-4">
                     <div class="checkbox top-buffer-40">
                       <label>
-                        <input name="is_club_happy" type="checkbox"> Club Happy
+                        <input id="app_is_club_happy" name="is_club_happy" type="checkbox"> Club Happy
                       </label>
                     </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div id="app_phone_search_results" class="col-md-12 list-group pet-search-results box-shadow--6dp" style="overflow-y: hidden;">
                   </div>
                 </div>
                 <div class="row">
                   <div class="col-md-12">
                     <fieldset class="form-group has-feedback">
                       <label>Email</label>
-                      <input type="email" class="form-control" name="customer_email" placeholder="Email" autocomplete="off">
+                      <input id="app_search_email_input" type="text" class="form-control" name="customer_email" placeholder="Email" autocomplete="off">
                       <i class="glyphicon glyphicon-search form-control-feedback"></i>
                     </fieldset>
                   </div>
@@ -133,7 +129,12 @@
           </div>
           <!-- TODO: S3 image url -->
           <div class="col-md-4">
-            <img id="app_img" class="img-rounded img-appointment" src="{% static 'happy/img/tux.jpg' %}"">
+            <img id="app_img" class="img-rounded img-appointment" src="{% static 'happy/img/tux.jpg' %}">
+          </div>
+        </div>
+        <div class="row">
+          <div id="conflict_panel" class="col-md-12 bg-danger text-danger text-center text hidden">
+            <h4 id="conflict_panel_text"> </h4>
           </div>
         </div>
       </div>
@@ -143,7 +144,8 @@
             <h4 class="text-left">Total: <span id="total_price">100 </span> €<span id="total_paid"></span></h4>
           </div>
           <div class="col-md-8">
-            <button id="confirm_new_pet_appointment_btn" type="button" class="btn btn-primary"  onclick="showNewAppointment();"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Nueva Cita</button>
+            <button id="confirm_new_pet_appointment_btn" type="button" class="btn btn-primary"  onclick="confirmNewPetAppointment();"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Dar Cita</button>
+            <button id="show_new_pet_appointment_btn" type="button" class="btn btn-primary" onclick="showNewAppointment();"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Nueva Cita</button>
             <button id="confirm_pet_appointment_btn" type="button" class="btn btn-success" onclick="confirmSelectedPetAppointment();"></button>
             <button id="save_appointment_btn" type="button" class="btn btn-success" onclick="updateAppointment();"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Guardar</button>
             <button id="pay_btn" type="button" class="btn btn-primary" onclick="showPayment()"><span class="glyphicon glyphicon-euro" aria-hidden="true"></span> Cobrar</button>

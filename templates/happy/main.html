@@ -2,13 +2,14 @@
 {% block extra_head %}
   {% load staticfiles %}
   <link href="{% static 'happy/fullcalendar/fullcalendar.css' %}" rel='stylesheet' media="screen" />
-  <script src="{% static 'happy/js/moment.js' %}"></script>
-  <script src="{% static 'happy/fullcalendar/fullcalendar.min.js' %}"></script>
-  <script src="{% static 'happy/fullcalendar/lang/es.js' %}"></script>
-  <script src="{% static 'happy/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
-  <script src="{% static 'happy/bootstrap-datepicker/locales/bootstrap-datepicker.es.min.js' %}"></script>
-  <script src="{% static 'happy/js/bootstrap-typeahead.min.js' %}"></script>
   <link href="{% static 'happy/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" rel="stylesheet" media="screen" />
+  <script src="{% static 'happy/js/moment.js' %}" type='text/javascript' ></script>
+  <script src="{% static 'happy/fullcalendar/fullcalendar.min.js' %}" type='text/javascript'></script>
+  <script src="{% static 'happy/fullcalendar/lang/es.js' %}" type='text/javascript'></script>
+  <script src="{% static 'happy/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}" type='text/javascript'></script>
+  <script src="{% static 'happy/bootstrap-datepicker/locales/bootstrap-datepicker.es.min.js' %}" type='text/javascript'></script>
+  <script src="{% static 'happy/js/typeahead-bundle.js' %}" type='text/javascript'></script>
+  <script src="{% static 'happy/js/handlebars.js' %}" type='text/javascript'></script>
 {% endblock %}
 
 {% block content %}

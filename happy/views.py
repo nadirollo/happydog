@@ -1,9 +1,10 @@
 from django.shortcuts import render
-from django.http import JsonResponse, HttpResponse
-from .models import Customer, Pet, Appointment, Service
+from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
+from models import Customer, Pet, Appointment, Service
 from django.db.models import Q
 from datetime import datetime
-from django.core import serializers
+from django.db import IntegrityError
+
 
 def index(request):
     context = {
@@ -13,7 +14,7 @@ def index(request):
 
 
 def customers(request):
-    customers_list = Customer.objects.order_by('last_name')
+    customers_list = Customer.objects.order_by('name')
     context = {
         'customers': customers_list
     }
@@ -35,7 +36,7 @@ def get_appointments(request):
         a['end'] = app.end
         a['description'] = app.notes
         a['pet_id'] = app.pet.pk
-        a['pet_long_name'] = app.pet.long_name()
+        a['pet_long_name'] = app.pet.long_name
         a['services'] = []
         a['paid'] = app.paid
         a['amount_paid'] = app.amount_paid
@@ -84,17 +85,61 @@ def get_pets(request):
     if q is not None:
         pets = Pet.objects.filter(
             Q(name__contains=q) |
-            Q(owners__first_name__contains=q)
+            Q(owners__name__contains=q) |
+            Q(owners__cellphone__contains=q) |
+            Q(owners__email__contains=q)
         ).order_by('name').distinct()[:limit]
-    context = {
-        'pets': pets
-    }
+        context = {
+            'pets': pets
+        }
+    else:
+        return HttpResponseNotFound('Unknown Search Type')
+    # TODO: Serialize the returning objects
+    # TODO: Return the same serialized objects always and let JS (typeahead+handlebars) to do the magic
     if type == 'main':
         return render(request, 'happy/pets_search_result.html', context)
     elif type == 'appointment':
-        return JsonResponse(serializers.serialize('json', pets), safe=False)
+        l = []
+        for p in pets:
+            for a in p.appointment_set.all():
+                print(a)
+            l.append({
+                'pet_long_name': p.long_name,
+                'pet_name': p.name,
+                'pet_id': p.id,
+                'pet_birthday': p.birthday.strftime('%d/%m/%Y'),
+                'pet_breed': p.breed,
+                'pet_description': p.annotations,
+                'owner_name': p.owners.first().name,
+                'owner_id': p.owners.first().id,
+                'owner_phone': p.owners.first().cellphone,
+                'owner_email': p.owners.first().email,
+                'owner_club_happy': p.owners.first().club_happy
+            })
+        return JsonResponse(l, safe=False)
     else:
-        return HttpResponse('Unknown Search Type')
+        return HttpResponseNotFound('Unknown Search Type')
+
+
+def get_pet(request):
+    pet_pk = request.GET.get('pet_pk')
+    if pet_pk is not None:
+        pet = Pet.objects.get(pk=pet_pk)
+        owners = pet.owners.all()
+        pets = Pet.objects.filter(
+            Q(owners__in=owners)
+        ).distinct()
+        appointments = Appointment.objects.filter(
+            Q(pet__in=pets)
+        ).order_by('-start')
+        context = {
+            'selected_pet_pk': pet.pk,
+            'pets': pets,
+            'owners': owners,
+            'last_appointments': appointments
+        }
+        return render(request, 'happy/pet_info.html', context)
+    return HttpResponseNotFound()
 
 
 def get_phones(request):
@@ -112,32 +157,6 @@ def get_phones(request):
     return HttpResponse('Nothing to search')
 
 
-def get_pet(request):
-    json = request.GET.get('json', 0)
-    pet_pk = request.GET.get('pet_pk')
-    pets = []
-    owners = []
-    if pet_pk is not None:
-        pet = Pet.objects.get(pk=pet_pk)
-        owners = pet.owners.all()
-        pets = Pet.objects.filter(
-            Q(owners__in=owners)
-        ).distinct()
-        appointments = Appointment.objects.filter(
-            Q(pet__in=pets)
-        ).order_by('-start')
-    context = {
-        'selected_pet_pk': pet.pk,
-        'pets': pets,
-        'owners': owners,
-        'last_appointments': appointments
-    }
-    if json:
-        pass
-    else:
-        return render(request, 'happy/pet_info.html', context)
-
-
 def create_appointment(request):
     try:
         pet = Pet.objects.get(id=request.GET.get('pet_pk'))
@@ -151,7 +170,7 @@ def create_appointment(request):
         app.save()
         if services_list is not None and services_list != '':
             services_list = services_list.split(',')
-            services = Service.objects.filter(id__in=(services_list))
+            services = Service.objects.filter(id__in=services_list)
             app.services = services
             app.save()
         return HttpResponse('Created')
@@ -187,5 +206,65 @@ def pay_appointment(request):
         appointment.amount_paid = request.GET.get('total_paid')
         appointment.save()
         return HttpResponse('Paid')
+    except Exception as e:
+        return HttpResponse(e.message, status=500)
+
+
+def create_appointment_new_pet_owner(request):
+    try:
+        owner_id = request.GET.get('owner_id', False)
+        owner_email = request.GET.get('owner_email')
+        owner_phone = request.GET.get('owner_phone')
+        if owner_id:
+            owner = Customer.objects.get(id=owner_id)
+        else:
+            owner = Customer()
+        owner.name = request.GET.get('owner_name')
+        owner.email = owner_email
+        owner.cellphone = owner_phone
+        owner.club_happy = request.GET.get('owner_club_happy')
+        owner.save()
+
+        pet_id = request.GET.get('pet_id', False)
+        if pet_id:
+            pet = Pet.objects.get(id=pet_id)
+        else:
+            pet = Pet()
+        pet.name = request.GET.get('pet_name')
+        pet.breed = request.GET.get('pet_breed', None)
+        pet.birthday = request.GET.get('pet_bday', None)
+        pet.annotations = request.GET.get('pet_desc', None)
+        pet.save()
+        pet.owners.add(owner)
+        pet.save()
+        start = request.GET.get('start_date')
+        end = request.GET.get('end_date')
+        services_list = request.GET.get('services')
+        app = Appointment()
+        app.pet = pet
+        app.start = start
+        app.end = end
+        app.save()
+        if services_list is not None and services_list != '':
+            services_list = services_list.split(',')
+            services = Service.objects.filter(id__in=services_list)
+            app.services = services
+            app.save()
+        return HttpResponse('Created')
+    except IntegrityError as e:
+        msg = {'msg': 'Integrity Error'}
+        try:
+            conflict_email_owner = Customer.objects.get(email=owner_email)
+            msg['email_conflict'] = owner_email
+            msg['email_conflict_owner'] = conflict_email_owner.name
+        except Customer.DoesNotExist:
+            pass
+        try:
+            conflict_phone_owner = Customer.objects.get(cellphone=owner_phone)
+            msg['phone_conflict'] = owner_phone
+            msg['phone_conflict_owner'] = conflict_phone_owner.name
+        except Customer.DoesNotExist:
+            pass
+        return JsonResponse(msg, status=400)
     except Exception as e:
         return HttpResponse(e.message, status=500)

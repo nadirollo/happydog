@@ -15,4 +15,5 @@ urlpatterns = [
     url(r'^delete_appointment$', views.delete_appointment),
     url(r'^update_appointment$', views.update_appointment),
     url(r'^pay_appointment', views.pay_appointment),
+    url(r'^create_appointment_new_pet_owner', views.create_appointment_new_pet_owner),
 ]
