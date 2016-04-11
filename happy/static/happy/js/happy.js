@@ -61,6 +61,7 @@ $(document).ready(function (){
                         owner_phone: pet.owner_phone,
                         owner_email: pet.owner_email,
                         owner_club_happy: pet.owner_club_happy,
+                        owner_display_name: pet.owner_name + ' - ' + pet.pet_name,
                         owner_phone_display: pet.owner_phone + ' - ' + pet.owner_name,
                         owner_email_display: pet.owner_email + ' - ' + pet.owner_name
                     }
@@ -111,13 +112,13 @@ $(document).ready(function (){
             name: 'Pets',
             source: pets_engine,
             templates: {
-                suggestion: Handlebars.compile('<div>{{owner_name}}</div>')
+                suggestion: Handlebars.compile('<div>{{owner_display_name}}</div>')
             }
         });
 
     app_search_owner_input.bind('typeahead:select',function(ev, suggestion) {
         pets_engine.clear();
-        setOwnerDataNewAppointment(suggestion);
+        setPetDataNewAppointment(suggestion);
         checkConfirmNewAppointmentValues();
     });
 
@@ -240,6 +241,8 @@ $(document).ready(function () {
                 $('#pets_birthday_modal').modal('show');
             } else {
                 resetServices();
+                loadPetData(calEvent.pet_id);
+                $('#total_paid').html('');
                 addHidden($('#conflict_panel'));
                 var services_table_body = $('#services_table tbody');
                 var new_appointment_div = $('#new_appointment_div');
@@ -257,7 +260,6 @@ $(document).ready(function () {
                         $('#total_paid').append("<br>Total Cobrado: " + calEvent.amount_paid + "€")
                     }
                 } else {
-                    $('#total_paid').html('');
                     showEditAppointmentButtons();
                 }
                 $('#pet_appointment_modal').modal('show');
@@ -269,6 +271,7 @@ $(document).ready(function () {
                 var petsTab = $('#pets_tabs');
                 resetServices();
                 resetForm($('#new_pet_appointment_form'));
+                $('#total_paid').html('');
                 addHidden($('#conflict_panel'));
                 $('#pet_appointment_modal_title').html("Cita el " + start.format('dddd, D MMMM HH:mm') + " con ...");
                 if (petsTab.length) {
@@ -284,7 +287,7 @@ $(document).ready(function () {
                     pet_id = pet_info[3];
                     pet_name = pet_info[1];
                     pet_longname = pet_info[2];
-                    confirm_pet_appointment_btn.html('<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> ' + pet_name);
+                    confirm_pet_appointment_btn.html('<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Cita con ' + pet_name);
                     confirm_pet_appointment_btn.data('pet_id', pet_id);
                     confirm_pet_appointment_btn.data('pet_name', pet_name);
                     confirm_pet_appointment_btn.data('pet_longname', pet_longname);
@@ -400,6 +403,7 @@ function hideAllAppointmentButtons() {
 
 function showNewAppointment() {
     showNewAppointmentButtons();
+    $("#pet_birthday_input").datepicker("setDate", new Date());
     addHidden($('#show_new_pet_appointment_btn'));
     addHidden($('#confirm_pet_appointment_btn'));
     resetForm($('#new_pet_appointment_form'));
@@ -436,6 +440,7 @@ function confirmSelectedPetAppointment() {
         type: "GET",
         data: appointment_data,
         success: function (data) {
+            loadPetData(data['pet_id']);
             $('#calendar').fullCalendar('refetchEvents');
             addHidden($('#conflict_panel'));
             $('#pet_appointment_modal').modal('hide');
@@ -476,7 +481,6 @@ function confirmNewPetAppointment(){
     data['start_date'] = $('#confirm_pet_appointment_btn').data('start_date').format();
     data['end_date'] = $('#confirm_pet_appointment_btn').data('end_date').format();
     data['services'] = service_ids.join(',');
-    console.log(data);
     $.ajax({
         url: location.protocol + "//" + location.host + "/create_appointment_new_pet_owner",
         type: "GET",
@@ -484,6 +488,7 @@ function confirmNewPetAppointment(){
         success: function (data) {
             $('#pet_appointment_modal').modal('hide');
             $('#calendar').fullCalendar('refetchEvents');
+            loadPetData(data['pet_id']);
             return true;
         },
         error: function (xhr, errmsg, err) {
@@ -657,6 +662,7 @@ function clearOwnerPK() {
 
 function setPetDataNewAppointment(obj){
     $('#confirm_new_pet_appointment_btn').data('pet_info', obj);
+    $('#app_pet_search_input').val(obj.pet_name);
     $('#pet_breed_input').val(obj.pet_breed);
     $('#pet_birthday_input').datepicker('update', obj.pet_birthday);
     $('#pet_description_input').val(obj.pet_description);

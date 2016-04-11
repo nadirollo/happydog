@@ -44,7 +44,7 @@ def get_appointments(request):
         if app.end < datetime.now() and not app.paid:
             a['color'] = '#B40404'
         # If its an old appointment and it was paid, show it in green
-        elif app.end < datetime.now() and app.paid:
+        elif app.paid:
             a['color'] = '#298A08'
         for s in app.services.all():
             a['services'].append({'id': s.id, 'name': s.name, 'price': s.price})
@@ -173,7 +173,7 @@ def create_appointment(request):
             services = Service.objects.filter(id__in=services_list)
             app.services = services
             app.save()
-        return HttpResponse('Created')
+        return JsonResponse({'pet_id': pet.id})
     except Exception as e:
         return HttpResponse(e.message, status=500)
 
@@ -250,7 +250,7 @@ def create_appointment_new_pet_owner(request):
             services = Service.objects.filter(id__in=services_list)
             app.services = services
             app.save()
-        return HttpResponse('Created')
+        return JsonResponse({'pet_id': pet.id})
     except IntegrityError as e:
         msg = {'msg': 'Integrity Error'}
         try:
