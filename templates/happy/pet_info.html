@@ -44,7 +44,7 @@
           {% if pet.birthday or pet.weight or pet.hair_type %}
             <h6>
               {% if pet.birthday %}
-                <span class="glyphicon icon-birthday"></span> {{ pet.birthday | date:"d F"}} <br>
+                <span class="glyphicon icon-birthday"></span> {{ pet.birthday | date:"d F"}} <small>{{ pet.birthday | years_passed }} Años</small><br>
               {% endif %}
               {% if pet.weight %}
                 <span class="glyphicon icon-gauge"></span> {{ pet.weight }} Kg <br>

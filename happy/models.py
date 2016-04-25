@@ -3,6 +3,15 @@ import datetime
 from django.db import models
 
 
+def get_picture_upload_path(picture, filename):
+        return "{}/{}".format(picture.pet.id, filename)
+
+
+# We have to ensure that we will always create the pet before upload any image!!!
+def get_upload_path(pet, filename):
+    return "{}/{}".format(pet.id, filename)
+
+
 class Customer(models.Model):
     name = models.CharField(max_length=64)
     email = models.CharField(max_length=256, unique=True)
@@ -16,26 +25,41 @@ class Customer(models.Model):
         return self.name
 
 
+class PetBreed(models.Model):
+    name = models.CharField(max_length=256, unique=True)
+
+    def __unicode__(self):
+        return self.name
+
+
 class Pet(models.Model):
+
+
     HAIR_TYPES = (
         ('short', 'Corto'),
         ('medium', 'Medio'),
         ('long', 'Largo')
     )
+    PET_SIZES = (
+        ('small', 'Pequeno'),
+        ('medium', 'Mediano'),
+        ('big', 'Grande')
+    )
     name = models.CharField(max_length=256)
     owners = models.ManyToManyField(Customer)
-    breed = models.CharField(max_length=256, null=True, blank=True)
+    breed = models.ForeignKey(PetBreed, null=True, blank=True)
     hair_type = models.CharField(max_length=100, choices=HAIR_TYPES, null=True, blank=True)
-    weight = models.IntegerField(null=True, blank=True)
+    size = models.CharField(max_length=30, choices=PET_SIZES, null=True, blank=True)
     annotations = models.CharField(max_length=2048, null=True, blank=True)
     birthday = models.DateField(null=True, blank=True)
     birthday_week = models.IntegerField(null=True, blank=True)
+    thumbnail = models.ImageField(upload_to=get_upload_path, null=True, blank=True)
 
     @property
     def long_name(self):
         str_name = self.name
         for o in self.owners.all():
-            str_name += " - ({})".format(o.name)
+            str_name += " - ".format(o.name)
         return str_name
 
     def __unicode__(self):
@@ -57,12 +81,13 @@ class Pet(models.Model):
 
 
 class PetPictures(models.Model):
-    url = models.CharField(max_length=1024)
+    customer = models.ForeignKey(Customer)
+    picture = models.ImageField(upload_to=get_upload_path)
     description = models.CharField(max_length=2048)
     pet = models.ForeignKey(Pet, on_delete=models.DO_NOTHING)
 
     def __unicode__(self):
-        return self.url
+        return self.description
 
 
 class Service(models.Model):
@@ -94,3 +119,6 @@ class Appointment(models.Model):
 
     def __unicode__(self):
         return "{} ({} - {})".format(self.pet, self.start, self.end)
+
+
+

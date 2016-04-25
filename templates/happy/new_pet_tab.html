@@ -1,0 +1,81 @@
+{% load happy_filters %}
+<div id="new_pet_{{ owner.id }}" class="top-buffer tab-pane fade">
+  <div class="row">
+    <form id="new_pet_{{ owner.id }}_form">
+      <div class="media">
+        <div class="media-left">
+          <img class="img-rounded" src="http://placehold.it/150x100&text=Foturra">
+        </div>
+        <div class="media-body">
+          <div class="col-md-10">
+            <div class="row">
+              <div class="col-md-6">
+                <fieldset class="form-group has-feedback">
+                  <label>Nombre del Peludo</label>
+                  <input id="pet_tab_name_input_{{ owner.id }}" type="text" class="form-control" name="pet_name" placeholder='' autocomplete="off">
+                </fieldset>
+              </div>
+              <div class="col-md-6">
+                <fieldset class="form-group">
+                  <label>Raza</label>
+                  <select  id="pet_tab_breed_input_{{ owner.id }}" class="form-control">
+                    <option disabled selected value> ----- </option>
+                    {% for breed in breeds %}
+                      <option value="{{ breed.id }}"> {{ breed.name }}</option>
+                    {% endfor %}
+                  </select>
+                </fieldset>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4">
+                <fieldset class="form-group">
+                  <label>Fecha Nacimiento</label>
+                  <input  id="pet_tab_bday_input_{{ owner.id }}" data-provide="datepicker" data-date-format="dd/mm/yyyy" data-date-autoclose="true" class="form-control" placeholder="dd/mm/aaaa">
+                </fieldset>
+              </div>
+              <div class="col-md-8">
+                <fieldset class="form-group">
+                  <label for="exampleTextarea">Notas del peludo</label>
+                  <textarea id="pet_tab_desc_input_{{ owner.id }}" class="form-control" rows="3"></textarea>
+                </fieldset>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4">
+                <fieldset class="form-group">
+                  <label>Tipo de Pelo</label>
+                  <select id="pet_tab_hair_input_{{ owner.id }}" class="form-control">
+                    <option disabled selected value> ----- </option>
+                    <option value="short">Corto</option>
+                    <option value="medium">Medio</option>
+                    <option value="long">Largo</option>
+                  </select>
+                </fieldset>
+              </div>
+              <div class="col-md-8">
+                <fieldset class="form-group">
+                  <label for="">Tamaño</label>
+                  <select id="pet_tab_size_input_{{ owner.id }}" class="form-control">
+                    <option disabled selected value> ----- </option>
+                    <option value="small">Pequeño</option>
+                    <option value="medium">Medio</option>
+                    <option value="big">Grande</option>
+                  </select>
+                </fieldset>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="row" class="panel-danger">
+    <p id="pet_tab_errors_{{ owner_id }}"></p>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <a class="btn btn-block btn-success" onclick="createNewPet({{ owner.id }})"><span class="glyphicon glyphicon-ok"></span> Guardar</a>
+    </div>
+  </div>
+</div>

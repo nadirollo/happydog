@@ -1,14 +1,147 @@
 {% extends 'happy/base.html' %}
+{% block extra_head %}
+  {% load staticfiles %}
+  <link rel="stylesheet" href="{% static 'happy/bootstrap-editable/css/bootstrap-editable.css' %}" type="text/css" media="screen" />
+  <script type="text/javascript" src="{% static 'happy/bootstrap-editable/js/bootstrap-editable.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'happy/js/moment.js' %}"></script>
+  <script src="{% static 'happy/js/customers.js'  %}" type="text/javascript"></script>
+{% endblock %}
+
+{% load happy_filters %}
 
 {% block content %}
-<script>
+  <script>
     $( "#nav_customers").addClass('active');
-</script>
-<h1>Customers</h1>
-<ul>
-{% for customer in customers %}
-    <li>{{ customer.name }}</li>
-    <li>{{ customer.email }}</li>
-{% endfor %}
-</ul>
+  </script>
+  <div class="row">
+    <div class="col-md-4">
+      <div class="input-group">
+        <input id='' type="text" class="form-control" placeholder="Buscar cliente o peludete...">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+        </span>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="input-group">
+        <input id='' type="text" class="form-control" placeholder="Raza...">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+        </span>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-11">
+      <div class="panel-group top-buffer" id="owner_accordion" role="tablist" aria-multiselectable="true">
+        <!-- for each customer -->
+        {% for owner in customers %}
+          <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="owner_header_{{ owner.id }}" aria-expanded="false" >
+              <div class="row">
+                <div class="col-md-3">
+                  <h4>
+                    <a class="collapsed accordion_link" role="button" data-toggle="collapse" data-parent="#owner_accordion" href="#owner_body_{{ owner.id }}" aria-controls="owner_body_{{ owner.id }}">
+                      {{ owner.name }}<br>
+                      <small>{{ owner.cellphone }}</small>
+                    </a>
+                  </h4>
+                </div>
+                {% for pet in owner.pet_set.all %}
+                  <div class="col-md-{{ owner.pet_set.count|col_width:'9' }}">
+                    <div class="media">
+                      <div class="media-left media-middle">
+                        <a class="collapsed accordion_link" role="button" data-toggle="collapse" data-parent="#owner_accordion" href="#owner_body_{{ owner.id }}" aria-controls="owner_body_{{ owner.id }}">
+                          <img class="media-object pet-image-customer-list img-rounded" src="{% static 'happy/img/tux.jpg' %}" alt="$pet-name">
+                        </a>
+                      </div>
+                      <div class="media-body valign-middle">
+                        <h4 class="media-heading">
+                          <a class="collapsed accordion_link" role="button" data-toggle="collapse" data-parent="#owner_accordion" href="#owner_body_{{ owner.id }}" aria-controls="owner_body_{{ owner.id }}">
+                            {{ pet.name }}<br>
+                            <small> {{ pet.breed }}</small><br>
+                            <small><a href="{% url 'main' %}#pet={{ pet.id }}" role="button" data-toggle="tooltip" title="Dar cita a {{ pet.name }}"><span class="glyphicon glyphicon-calendar"></span><small> Dar cita</small></a></small>
+                          </a>
+                        </h4>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+            <div id="owner_body_{{ owner.id }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="owner_header_{{ owner.id }}">
+              <div class="panel-body">
+                <!-- Owner / Pets Info -->
+                <div class="row">
+                  <!-- Owner Info -->
+                  <div class="col-md-4">
+                    <form class="form-horizontal form-inline">
+                      <div class="form-group">
+                        <label class="col-sm-2 control-label"><span class="glyphicon glyphicon-user"></span></label>
+                        <div class="col-sm-10">
+                          <a href="#" class="xeditable-owner-required" data-type="text" data-pk="{{ owner.id }}" data-url="/update_owner" data-name='name' data-title="Nombre y Appellidos">{{ owner.name }}</a>
+                        </div>
+                        <label class="col-sm-2 control-label"><span class="glyphicon glyphicon-envelope"></span></label>
+                        <div class="col-sm-10">
+                          <a href="#" class="xeditable-owner" data-type="text" data-pk="{{ owner.id }}" data-url="/update_owner" data-name='email' data-title="Email">{{ owner.email }}</a>
+                        </div>
+                        <label class="col-sm-2 control-label"><span class="glyphicon glyphicon-phone"></span></label>
+                        <div class="col-sm-10">
+                          <a href="#" class="xeditable-owner-required" data-type="text" data-pk="{{ owner.id }}" data-url="/update_owner" data-name='cellphone' data-title="Telefono">{{ owner.cellphone }}</a>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                  <!-- Pets Info -->
+                  <div class="col-md-8">
+                    <div id="pets">
+                      <ul id="pets_tabs" class="nav nav-tabs">
+                        {% for pet in owner.pet_set.all %}
+                          <li {% if forloop.first %}class="active" {% endif %}><a data-toggle="tab" href="#pet_{{ pet.id }}">{{ pet.name }}</a></li>
+                        {% endfor %}
+                        <li ><a class="new_pet_tab" data-toggle="tab" href="#new_pet_{{ owner.id }}"><span class="glyphicon glyphicon-plus"> </span> Nuevo Peludo</a></li>
+                      </ul>
+                      <div class="tab-content border">
+                        {% for pet in owner.pet_set.all %}
+                          <div id="pet_{{ pet.id }}" class="top-buffer tab-pane fade {% if forloop.first %}in active{% endif %}">
+                            <div class="media">
+                              <div class="media-left">
+                                <img class="img-rounded" src="{% static 'happy/img/tux.jpg' %}" alt="{{ pet.name }}">
+                                <h6>
+                                  <span class="glyphicon icon-birthday"></span> <a href="#" class="xeditable-pet" data-type="combodate" data-format="DD/MM/YYYY" data-value="{{ pet.birthday | date:"d/m/Y" }}" data-pk="{{ pet.id }}" data-url="/update_pet" data-name='birthday' data-title="Cumpleaños">{% if pet.birthday %}{{ pet.birthday | date:"d F"  }} {% else %} Vacio {% endif %}</a><small>{{ pet.birthday | years_passed}} Años</small><br>
+                                  <span class="glyphicon icon-gauge"></span> <a href="#" class="xeditable-pet-size" data-type="select" data-pk="{{ pet.id }}" data-url="/update_pet" data-name='size' data-title="Peso">{{ pet.weight |default_if_none:"0" }}</a><br>
+                                  <span class="glyphicon icon-scissors"></span> <a href="#" class="xeditable-pet-hair" data-type="select" data-pk="{{ pet.id }}" data-url="/update_pet" data-name='hair_type' data-title="Pelo">{{ pet.hair_type |default_if_none:"Vacio" }}</a>
+                                </h6>
+                              </div>
+                              <div class="media-body">
+                                <h4 class="media-heading">
+                                  <a href="#" class="xeditable-pet-required" data-type="text" data-pk="{{ pet.id }}" data-url="/update_pet" data-name='name' data-title="Nombre">{{ pet.name }}</a>
+                                  <small> <a href="#" class="xeditable-pet-breed" data-type="select" data-pk="{{ pet.id }}" data-url="/update_pet" data-name='breed' data-title="Raza">{{ pet.breed|default_if_none:"Vacio" }}</a></small>
+                                </h4>
+                                <a href="#" class="xeditable-pet" data-type="text" data-pk="{{ pet.id }}" data-url="/update_pet" data-name='annotations' data-title="Descripcion">{{ pet.annotations|default_if_none:"Vacio" }}</a>
+                                <p></p>
+                              </div>
+                            </div>
+                          </div>
+                        {% endfor %}
+                        {% include 'happy/new_pet_tab.html' %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Carrousel -->
+                <div class="row">
+                  {% include 'happy/carrousel.html' %}
+                </div>
+                <!-- Appointments -->
+                <div class="row">
+                  {% include 'happy/customer_appointments.html' %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
 {% endblock %}

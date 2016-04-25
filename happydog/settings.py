@@ -19,7 +19,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -29,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'storages',
     'happy'
 ]
 
@@ -42,6 +42,26 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+AWS_STORAGE_BUCKET_NAME     = 'nlb-happydog-images'
+AWS_ACCESS_KEY_ID           = 'AKIAIRKSFNCKRY44FXYQ'
+AWS_SECRET_ACCESS_KEY       = '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'
+AWS_S3_CUSTOM_DOMAIN        = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+DEFAULT_FILE_STORAGE        = 'storages.backends.s3boto.S3BotoStorage'
+AWS_HEADERS = {  # see http://developer.yahoo.com/performance/rules.html#expires
+    'Expires': 'Thu, 31 Dec 2099 20:00:00 GMT',
+    'Cache-Control': 'max-age=94608000',
+}
+
+# STATICFILES_LOCATION        = 'static'
+# STATICFILES_STORAGE         = 'happy.custom_storages.StaticStorage'
+# STATIC_URL                  = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, STATICFILES_LOCATION)
+
+MEDIAFILES_LOCATION         = 'media'
+MEDIA_URL                   = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, MEDIAFILES_LOCATION)
+DEFAULT_FILE_STORAGE        = 'happy.custom_storages.MediaStorage'
+
+
 
 ROOT_URLCONF = 'happydog.urls'
 

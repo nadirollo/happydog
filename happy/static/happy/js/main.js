@@ -227,12 +227,12 @@ $(document).ready(function () {
                 // TODO: Add link to pet details
                 calEvent.pets.forEach(function (entry) {
                     //TODO: Replace S3 image
-                    html_content = "<div class='col-sm-2 col-md-2'> \
+                    html_content = "<div class='col-md-2' onclick='loadPetData(" + entry.id + ")'  style='cursor: pointer;' > \
                                         <div class='thumbnail'> \
-                                          <img onclick='loadPetData(" + entry.id + ")' style='cursor: pointer;' class='img-rounded' src='/static/happy/img/tux.jpg'/> \
+                                          <img src='/static/happy/img/tux.jpg'/> \
                                           <div class='caption text-center'> \
-                                            <h3>" + entry.name + "</h3> \
-                                            <p>" + entry.years + " años</p> \
+                                            <h4>" + entry.name + "</h4> \
+                                            <p><small>Cumple " + entry.years + " años</small></p><span class='glyphicon icon-birthday'></span> \
                                           </div> \
                                         </div> \
                                       </div>";
@@ -240,29 +240,7 @@ $(document).ready(function () {
                 });
                 $('#pets_birthday_modal').modal('show');
             } else {
-                resetServices();
-                loadPetData(calEvent.pet_id);
-                $('#total_paid').html('');
-                addHidden($('#conflict_panel'));
-                var services_table_body = $('#services_table tbody');
-                var new_appointment_div = $('#new_appointment_div');
-                $('#pet_appointment_modal_title').html(calEvent.title + " - " + calEvent.start.format('dddd, D MMMM HH:mm'));
-                $('#appointment_title').html(calEvent.pet_long_name);
-                $('#appointment_time').html(moment(calEvent.start).format('HH:mm') + ' - ' + moment(calEvent.end).format('HH:mm'));
-                $.each(calEvent.services, function (i, service) {
-                    services_table_body.append('<tr id="srv_' + service.id + '"><td class="service-id" data-service-id="' + service.id + '">' + service.name + '</td><td class="service-price">' + service.price + '</td><td><a class="alert-danger" onclick="deleteService(' + service.id + ')"><span class="glyphicon glyphicon-minus-sign" style="cursor: pointer;"></span></a></td></tr>');
-                });
-                new_appointment_div.data('app_id', calEvent.id);
-                calculateTotal();
-                if (calEvent.paid) {
-                    hideAllAppointmentButtons();
-                    if ($('#total_price').text() != calEvent.amount_paid) {
-                        $('#total_paid').append("<br>Total Cobrado: " + calEvent.amount_paid + "€")
-                    }
-                } else {
-                    showEditAppointmentButtons();
-                }
-                $('#pet_appointment_modal').modal('show');
+                loadEventModal(calEvent);
             }
         },
         select: function (start, end) {
@@ -307,10 +285,66 @@ $(document).ready(function () {
                 }
 
             }
+        },
+        loading: function (isLoading, view){
+            if (!isLoading && location.hash && location.hash.startsWith("#date")){
+                var str = location.hash.split('#');
+                var gotodate = moment.utc(str[1].split('=')[1], 'YYYY-MM-DD');
+                var app_id = str[2].split('=')[1];
+                console.log(gotodate);
+                console.log(view.start);
+                if(gotodate >= view.start && gotodate <= view.end){
+                    var calEvent = $('#calendar').fullCalendar('clientEvents', app_id);
+                    console.log(calEvent[0]);
+                    loadEventModal(calEvent[0]);
+                    location.hash = '';
+                }
+            }
         }
-    })
+    });
+    // If we detect an anchor, load the appropiate calendar week / pet
+    if (location.hash){
+        if(location.hash.startsWith("#date")){
+            var str = location.hash.split('#');
+            var gotodate = str[1].split('=');
+            var app_id = str[2].split('=');
+            $('#calendar').fullCalendar('gotoDate', gotodate[1]);
+        }else if(location.hash.startsWith("#pet")){
+            var pet_id = location.hash.substring(5);
+            console.log(pet_id);
+            loadPetData(pet_id);
+            location.hash = '';
+        }
+    }
+
 });
 
+
+function loadEventModal(calEvent){
+    resetServices();
+    loadPetData(calEvent.pet_id);
+    $('#total_paid').html('');
+    addHidden($('#conflict_panel'));
+    var services_table_body = $('#services_table tbody');
+    var new_appointment_div = $('#new_appointment_div');
+    $('#pet_appointment_modal_title').html(calEvent.title + " - " + calEvent.start.format('dddd, D MMMM HH:mm'));
+    $('#appointment_title').html(calEvent.pet_long_name);
+    $('#appointment_time').html(moment(calEvent.start).format('HH:mm') + ' - ' + moment(calEvent.end).format('HH:mm'));
+    $.each(calEvent.services, function (i, service) {
+        services_table_body.append('<tr id="srv_' + service.id + '"><td class="service-id" data-service-id="' + service.id + '">' + service.name + '</td><td class="service-price">' + service.price + '</td><td><a class="alert-danger" onclick="deleteService(' + service.id + ')"><span class="glyphicon glyphicon-minus-sign" style="cursor: pointer;"></span></a></td></tr>');
+    });
+    new_appointment_div.data('app_id', calEvent.id);
+    calculateTotal();
+    if (calEvent.paid) {
+        hideAllAppointmentButtons();
+        if ($('#total_price').text() != calEvent.amount_paid) {
+            $('#total_paid').append("<br>Total Cobrado: " + calEvent.amount_paid + "€")
+        }
+    } else {
+        showEditAppointmentButtons();
+    }
+    $('#pet_appointment_modal').modal('show');
+}
 
 function loadPetData(pet_id) {
     $('#pets_birthday_modal').modal('hide');
@@ -458,16 +492,20 @@ function confirmSelectedPetAppointment() {
 function confirmNewPetAppointment(){
     var pet_info = $('#confirm_new_pet_appointment_btn').data('pet_info');
     var owner_info = $('#confirm_new_pet_appointment_btn').data('owner_info');
-    var data = {
-        owner_name: $('#app_search_owner_input').val(),
-        owner_email: $('#app_search_email_input').val(),
-        owner_phone: $('#app_search_phone_input').val(),
-        owner_club_happy: $('#app_is_club_happy').prop('checked'),
-        pet_name: $('#app_pet_search_input').val(),
-        pet_breed: $('#pet_breed_input').val(),
-        pet_bday: $('#pet_birthday_input').val(),
-        pet_desc: $('#pet_description_input').val()
-    };
+    var data = {};
+    var inputs = [{'input': '#app_search_owner_input', 'field': 'owner_name'},
+                  {'input': '#app_search_email_input', 'field': 'owner_email'},
+                  {'input': '#app_search_phone_input', 'field': 'owner_phone'},
+                  {'input': '#app_pet_search_input', 'field': 'pet_name'},
+                  {'input': '#pet_breed_input', 'field': 'pet_breed'},
+                  {'input': '#pet_birthday_input', 'field': 'pet_bday'},
+                  {'input': '#pet_description_input', 'field': 'pet_desc'}];
+    inputs.forEach(function(entry){
+       if($(entry['input']).val() != ''){
+           data[entry['field']] = $(entry['input']).val();
+       }
+    });
+    data['owner_club_happy'] = $('#app_is_club_happy').prop('checked');
     if(owner_info !== undefined && owner_info.owner_name == $('#app_search_owner_input').val()){
         data['owner_id'] = owner_info.owner_id;
     }

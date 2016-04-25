@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
-from models import Customer, Pet, Appointment, Service
+from models import Customer, Pet, Appointment, Service, PetBreed
 from django.db.models import Q
 from datetime import datetime
 from django.db import IntegrityError
@@ -14,9 +14,13 @@ def index(request):
 
 
 def customers(request):
-    customers_list = Customer.objects.order_by('name')
+    customers_list = Customer.objects.select_related().order_by('name')
+    breed_list = PetBreed.objects.all().order_by('name')
     context = {
-        'customers': customers_list
+        'customers': customers_list,
+        'breeds': breed_list,
+        'hair_types': Pet.HAIR_TYPES,
+        'pet_sizes': Pet.PET_SIZES
     }
     return render(request, 'happy/customers.html', context)
 
@@ -268,3 +272,66 @@ def create_appointment_new_pet_owner(request):
         return JsonResponse(msg, status=400)
     except Exception as e:
         return HttpResponse(e.message, status=500)
+
+
+def create_pet(request):
+    try:
+        owner_id = request.GET.get('owner_id')
+        owner = Customer.objects.get(id=owner_id)
+        pet = Pet()
+        pet.name = request.GET.get('name')
+        breed_id = request.GET.get('breed_id', None)
+        if breed_id:
+            pet.breed = PetBreed.objects.get(id=breed_id)
+        pet.birthday = request.GET.get('bday', None)
+        pet.annotations = request.GET.get('desc', None)
+        pet.hair_type = request.GET.get('hair', None)
+        pet.size = request.GET.get('size', None)
+        pet.save()
+        pet.owners.add(owner)
+        pet.save()
+        return JsonResponse({'pet_id': pet.id})
+    except Exception as e:
+        return HttpResponse(e.message, status=500)
+
+
+def update_pet(request):
+    try:
+        pet_id = request.GET.get('pk')
+        pet = Pet.objects.get(id=pet_id)
+        field = request.GET.get('name')
+        value = request.GET.get('value')
+        if field in pet._meta.get_all_field_names():
+            if field == 'breed':
+                breed = PetBreed.objects.get(id=value)
+                setattr(pet, field, breed)
+            else:
+                setattr(pet, field, value)
+        else:
+            return HttpResponse('Field does not exist on model', status=500)
+        pet.save()
+        return JsonResponse({'pet_id': pet.id, 'field': field, 'value': value})
+    except Exception as e:
+        return HttpResponse(e.message, status=500)
+
+
+def get_breeds(request):
+    breeds = PetBreed.objects.all().order_by('name')
+    breed_list = []
+    for b in breeds:
+        breed_list.append({b.id: b.name})
+    return JsonResponse(breed_list, safe=False)
+
+
+def get_sizes(request):
+    size_list = []
+    for s in Pet.PET_SIZES:
+        size_list.append({s[0]: s[1]})
+    return JsonResponse(size_list, safe=False)
+
+
+def get_hair_types(request):
+    hair_list = []
+    for h in Pet.HAIR_TYPES:
+        hair_list.append({h[0]: h[1]})
+    return JsonResponse(hair_list, safe=False)

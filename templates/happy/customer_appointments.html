@@ -1,0 +1,35 @@
+<div class="col-md-12">
+  <!-- For each pet and each appointment -->
+  <div class="panel-group top-buffer" id="owner_app_accordion" role="tablist" aria-multiselectable="false">
+    {% for pet in owner.pet_set.all %}
+      {% for app in pet.appointment_set.all %}
+        <div class="panel panel-default">
+          <div class="panel-heading" role="tab" id="app_header_{{ owner.id }}_{{ app.id }}" aria-expanded="false" >
+            <div class="row">
+              <!-- App. Date -->
+              <div class="col-md-6">
+                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#owner_app_accordion" href="#app_body_{{ owner.id }}_{{ app.id }}" aria-controls="app_body_{{ owner.id }}_{{ app.id }}">
+                  {{ app.start | date:"d F - H:i" }}
+                </a>
+              </div>
+              <!-- Pet Name -->
+              <div class="col-md-4">
+                {{ app.pet.name }}
+              </div>
+              <div class="col-md-2">
+                <a href="{% url 'main' %}#date={{ app.start | date:"Y-m-d" }}#app_id={{ app.id }}"><span class="glyphicon glyphicon-search"></span></a>
+              </div>
+            </div>
+          </div>
+          <div id="app_body_{{ owner.id }}_{{ app.id }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="app_header_{{ owner.id }}_{{ app.id }}">
+            <div class="panel-body">
+              {% for service in app.services.all %}
+                {{ service.name }} - {{ service.price }}<br>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% endfor %}
+  </div>
+</div>
