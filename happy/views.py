@@ -112,7 +112,7 @@ def get_pets(request):
                 'pet_name': p.name,
                 'pet_id': p.id,
                 'pet_birthday': p.birthday.strftime('%d/%m/%Y'),
-                'pet_breed': p.breed,
+                'pet_breed': p.breed.name,
                 'pet_description': p.annotations,
                 'owner_name': p.owners.first().name,
                 'owner_id': p.owners.first().id,
