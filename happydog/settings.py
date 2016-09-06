@@ -44,8 +44,8 @@ MIDDLEWARE_CLASSES = [
 ]
 
 AWS_STORAGE_BUCKET_NAME     = 'nlb-happydog-images'
-AWS_ACCESS_KEY_ID           = 'AKIAIRKSFNCKRY44FXYQ'
-AWS_SECRET_ACCESS_KEY       = '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'
+AWS_ACCESS_KEY_ID           = 'FOO'
+AWS_SECRET_ACCESS_KEY       = 'BAR'
 AWS_S3_CUSTOM_DOMAIN        = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 DEFAULT_FILE_STORAGE        = 'storages.backends.s3boto.S3BotoStorage'
 AWS_HEADERS = {  # see http://developer.yahoo.com/performance/rules.html#expires
