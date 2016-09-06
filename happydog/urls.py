@@ -6,8 +6,8 @@ from happy import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls, name='admin'),
-    url(r'^inicio$', views.index, name='main'),
-    url(r'^clientes$', views.customers, name='customers'),
+    url(r'^index', views.index, name='main'),
+    url(r'^customers$', views.customers, name='customers'),
     url(r'^get_appointments$', views.get_appointments),
     url(r'^get_pets$', views.get_pets),
     url(r'^get_pet$', views.get_pet),
